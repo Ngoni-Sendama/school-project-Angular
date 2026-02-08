@@ -42,7 +42,7 @@ import { RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
           </a>
 
           <a
-            routerLink="/contact"
+            routerLink="/quiz"
             routerLinkActive="text-[#1c4544] border-b-2 border-green-600 "
             class="text-gray-600 hover:text-[#1c4544] pb-1 text-xl"
           >
