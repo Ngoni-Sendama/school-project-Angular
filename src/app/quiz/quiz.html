@@ -1,24 +1,126 @@
-<div style="max-width: 500px; margin: auto;">
-  <h2>Angular Quiz</h2>
+<div *ngIf="!submitted" class="min-h-screen flex items-center justify-center bg-green-100 px-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
 
-  <div *ngFor="let q of questions; let i = index">
-    <p><strong>{{ i + 1 }}. {{ q.question }}</strong></p>
+    <!-- Header -->
+    <h2 class="text-2xl font-bold text-center mb-2">Angular Quiz</h2>
+    <p class="text-center text-sm text-gray-500 mb-4">
+      Question {{ currentIndex + 1 }} of {{ questions.length }}
+    </p>
 
-    <label *ngFor="let option of q.options" style="display:block;">
-      <input
-        type="radio"
-        name="question{{i}}"
-        [value]="option"
-        [(ngModel)]="userAnswers[i]"
-      />
-      {{ option }}
-    </label>
-    <hr />
+    <!-- Progress bar -->
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+      <div
+        class="bg-green-600 h-2 rounded-full transition-all duration-300"
+        [style.width.%]="((currentIndex + 1) / questions.length) * 100"
+      ></div>
+    </div>
+
+    <!-- Question -->
+    <p class="text-lg font-semibold mb-4">
+      {{ questions[currentIndex].question }}
+    </p>
+
+    <!-- Options -->
+    <div class="space-y-3">
+      <label
+        *ngFor="let option of questions[currentIndex].options"
+        class="flex items-center p-3 border rounded-lg cursor-pointer transition
+          hover:bg-gray-50"
+        [ngClass]="{
+          'border-green-500 bg-green-50 text-green-700': isCorrect(option),
+          'border-red-500 bg-red-50 text-red-700': isWrong(option),
+          'border-gray-300': !checked
+        }"
+      >
+        <input
+          type="radio"
+          name="question"
+          class="mr-3 accent-green-600"
+          [checked]="selectedAnswer === option"
+          (change)="selectAnswer(option)"
+          [disabled]="checked"
+        />
+        <span class="font-medium">{{ option }}</span>
+      </label>
+    </div>
+
+    <!-- Feedback -->
+    <div *ngIf="checked" class="mt-4 text-center">
+      <span
+        class="font-semibold"
+        [ngClass]="{
+          'text-green-600': selectedAnswer === questions[currentIndex].answer,
+          'text-red-600': selectedAnswer !== questions[currentIndex].answer
+        }"
+      >
+        {{
+          selectedAnswer === questions[currentIndex].answer
+            ? 'Correct 🎉'
+            : 'Wrong ❌'
+        }}
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-6 flex gap-3">
+      <button
+        class="flex-1 py-2 rounded-lg font-semibold text-white transition
+          disabled:bg-gray-400 bg-green-600 hover:bg-green-700"
+        (click)="checkAnswer()"
+        [disabled]="!selectedAnswer || checked"
+      >
+        Check Answer
+      </button>
+
+      <button
+        *ngIf="checked && currentIndex < questions.length - 1"
+        class="flex-1 py-2 rounded-lg font-semibold bg-gray-200 hover:bg-gray-300 transition"
+        (click)="next()"
+      >
+        Next →
+      </button>
+
+      <button
+        *ngIf="checked && currentIndex === questions.length - 1"
+        class="flex-1 py-2 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 transition"
+        (click)="submitQuiz()"
+      >
+        Finish
+      </button>
+    </div>
   </div>
+</div>
 
-  <button (click)="submitQuiz()">Submit</button>
+<!-- Result Screen -->
+<div *ngIf="submitted" class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+  <div class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md w-full">
+    <h2 class="text-3xl font-bold mb-3">Quiz Completed 🎉</h2>
+    <p class="text-lg text-gray-700 mb-4">
+      You scored
+      <span class="font-bold text-green-600">
+        {{ score }} / {{ questions.length }}
+      </span>
+    </p>
 
-  <h3 *ngIf="submitted">
-    Your Score: {{ score }} / {{ questions.length }}
-  </h3>
+    <div
+      class="text-6xl font-bold mb-4"
+      [ngClass]="{
+        'text-green-600': score >= questions.length * 0.7,
+        'text-yellow-500': score < questions.length * 0.7 && score >= questions.length * 0.4,
+        'text-red-600': score < questions.length * 0.4
+      }"
+    >
+      {{ (score / questions.length * 100) | number:'1.0-0' }}%
+    </div>
+
+    <p class="text-gray-500">
+      {{
+        score >= questions.length * 0.7
+          ? 'Great job!'
+          : score >= questions.length * 0.4
+          ? 'Not bad, keep practicing!'
+          : 'Keep learning, you’ll get there!'
+      }}
+    </p>
+  </div>
 </div>

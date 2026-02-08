@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './quiz.html',
   styleUrl: './quiz.css',
 })
@@ -38,9 +37,31 @@ export class Quiz {
     }
   ];
 
+  currentIndex = 0;
+  selectedAnswer: string | null = null;
   userAnswers: string[] = [];
-  score = 0;
+  checked = false;
   submitted = false;
+  score = 0;
+
+  selectAnswer(option: string) {
+    if (!this.checked) {
+      this.selectedAnswer = option;
+    }
+  }
+
+  checkAnswer() {
+    if (!this.selectedAnswer) return;
+
+    this.userAnswers[this.currentIndex] = this.selectedAnswer;
+    this.checked = true;
+  }
+
+  next() {
+    this.currentIndex++;
+    this.selectedAnswer = this.userAnswers[this.currentIndex] ?? null;
+    this.checked = false;
+  }
 
   submitQuiz() {
     this.score = 0;
@@ -50,5 +71,20 @@ export class Quiz {
       }
     });
     this.submitted = true;
+  }
+
+  isCorrect(option: string) {
+    return (
+      this.checked &&
+      option === this.questions[this.currentIndex].answer
+    );
+  }
+
+  isWrong(option: string) {
+    return (
+      this.checked &&
+      option === this.selectedAnswer &&
+      option !== this.questions[this.currentIndex].answer
+    );
   }
 }
